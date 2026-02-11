@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="ja" class="h-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Math Learning Studio</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <!-- Google Fonts: Zen Maru Gothic -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
+  <!-- SweetAlert2 -->
+  <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bootstrap-4/bootstrap-4.min.css" rel="stylesheet">
+  
+  <style>
+    /* --- CSS.html Content Integrated --- */
+    
+    /* GIGA Standard v2 Font & Base Styles */
+    body {
+      font-family: "Zen Maru Gothic", sans-serif;
+      background-color: #f8f9fa;
+      color: #333;
+    }
+
+    /* Ruby Text Styling for readability */
+    ruby {
+      ruby-position: over;
+    }
+    rt {
+      font-size: 0.6em;
+      color: #555;
+    }
+
+    /* Fade-in Animation */
+    .fade-in {
+      animation: fadeIn 0.5s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* Graph Paper Background Pattern */
+    .graph-paper {
+      background-color: #ffffff;
+      background-image: 
+        linear-gradient(#e1e1e1 1px, transparent 1px),
+        linear-gradient(90deg, #e1e1e1 1px, transparent 1px);
+      background-size: 50px 50px; /* Grid Size */
+    }
+
+    /* Scrollbar for toolbar */
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f1f1; 
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #c1c1c1; 
+      border-radius: 3px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #a8a8a8; 
+    }
+
+    /* Button Hover Effects */
+    .btn-outline-primary:hover, .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: all 0.2s;
+    }
+  </style>
+</head>
+<body class="d-flex flex-column h-100">
+  
+  <!-- Navbar (Fixed Top) -->
+  <nav class="navbar navbar-light bg-white shadow-sm fixed-top">
+    <div class="container-fluid">
+      <span class="navbar-brand mb-0 h1 text-primary">
+        <i class="bi bi-grid-3x3-gap-fill me-2"></i>Math Learning Studio
+      </span>
+      <div>
+        <button id="btn-download" class="btn btn-outline-success me-2" title="画像を保存">
+          <i class="bi bi-card-image"></i> <ruby>画像<rt>がぞう</rt></ruby>
+        </button>
+        <div class="btn-group" role="group">
+          <button id="btn-undo" class="btn btn-outline-secondary" title="元に戻す" disabled>
+            <i class="bi bi-arrow-counterclockwise"></i> <ruby>戻<rt>もど</rt></ruby>る
+          </button>
+          <button id="btn-redo" class="btn btn-outline-secondary" title="やり直し" disabled>
+            <i class="bi bi-arrow-clockwise"></i> <ruby>進<rt>すす</rt></ruby>む
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main App View (Fills remaining height) -->
+  <div id="app-view" class="container-fluid px-4 flex-grow-1 d-flex flex-column" style="margin-top: 70px;">
+    <div class="row flex-grow-1">
+      
+      <!-- Toolbar (Scrollable) -->
+      <div class="col-md-3 col-lg-2 mb-3 d-flex flex-column" style="max-height: calc(100vh - 140px);">
+        <div class="card shadow-sm h-100">
+          <div class="card-header bg-primary text-white">
+            <i class="bi bi-tools me-2"></i><ruby>道具<rt>どうぐ</rt>箱<rt>ばこ</rt></ruby>
+          </div>
+          <div class="card-body d-grid gap-2 overflow-auto custom-scrollbar">
+            
+            <h6 class="text-muted border-bottom pb-2"><ruby>図<rt>ず</rt>形<rt>けい</rt></ruby></h6>
+            <div class="row g-2">
+              <div class="col-6">
+                <button class="btn btn-outline-primary w-100 p-1" onclick="addRect()">
+                  <i class="bi bi-square"></i><br><span style="font-size:0.8rem"><ruby>四角<rt>しかく</rt></ruby></span>
+                </button>
+              </div>
+              <div class="col-6">
+                <button class="btn btn-outline-primary w-100 p-1" onclick="addTriangle()">
+                  <i class="bi bi-triangle"></i><br><span style="font-size:0.8rem"><ruby>三角<rt>さんかく</rt></ruby></span>
+                </button>
+              </div>
+              <div class="col-6">
+                <button class="btn btn-outline-primary w-100 p-1" onclick="addCircle()">
+                  <i class="bi bi-circle"></i><br><span style="font-size:0.8rem"><ruby>円<rt>えん</rt></ruby></span>
+                </button>
+              </div>
+              <div class="col-6">
+                <button class="btn btn-outline-primary w-100 p-1" onclick="addPolygon()">
+                   <i class="bi bi-hexagon"></i><br><span style="font-size:0.8rem"><ruby>多角<rt>たかく</rt></ruby></span>
+                </button>
+              </div>
+            </div>
+            
+            <button class="btn btn-primary w-100 mt-2" onclick="openSizeBuilder()">
+              <i class="bi bi-rulers me-1"></i><ruby>サイズ<rt>さいず</rt></ruby>で<ruby>作<rt>つく</rt></ruby>る
+            </button>
+
+            <h6 class="text-muted border-bottom pb-2 mt-3"><ruby>定規<rt>じょうぎ</rt></ruby>ツール</h6>
+             <div class="row g-2">
+              <div class="col-6">
+                <button class="btn btn-outline-info w-100 p-1" onclick="addRuler()">
+                  <i class="bi bi-rulers"></i><br><span style="font-size:0.8rem"><ruby>定規<rt>じょうぎ</rt></ruby></span>
+                </button>
+              </div>
+              <div class="col-6">
+                <button class="btn btn-outline-info w-100 p-1" onclick="addProtractor()">
+                  <i class="bi bi-speedometer2"></i><br><span style="font-size:0.8rem"><ruby>分度器<rt>ぶんどき</rt></ruby></span>
+                </button>
+              </div>
+            </div>
+
+            <h6 class="text-muted border-bottom pb-2 mt-3"><ruby>操作<rt>そうさ</rt></ruby></h6>
+            
+            <button id="btn-edit-mode" class="btn btn-outline-warning text-start" onclick="toggleEditMode()">
+              <i class="bi bi-vector-pen me-2"></i><ruby>形<rt>かたち</rt></ruby>を<ruby>変<rt>か</rt></ruby>える
+            </button>
+
+             <button class="btn btn-outline-success text-start" onclick="copyObject()">
+              <i class="bi bi-files me-2"></i><ruby>複製<rt>ふくせい</rt></ruby>
+            </button>
+            <button class="btn btn-outline-danger text-start" onclick="deleteObject()">
+              <i class="bi bi-trash me-2"></i><ruby>削除<rt>さくじょ</rt></ruby>
+            </button>
+             <button class="btn btn-outline-secondary text-start" onclick="clearCanvas()">
+              <i class="bi bi-eraser me-2"></i><ruby>全<rt>ぜん</rt>消<rt>け</rt></ruby>し
+            </button>
+            
+            <div class="form-check form-switch mt-3">
+              <input class="form-check-input" type="checkbox" id="snapToggle" checked>
+              <label class="form-check-label" for="snapToggle"><ruby>方<rt>ほう</rt>眼<rt>がん</rt></ruby>に<ruby>合<rt>あ</rt></ruby>わせる</label>
+            </div>
+
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="rotSnapToggle" checked>
+              <label class="form-check-label" for="rotSnapToggle"><ruby>角度<rt>かくど</rt></ruby>ピタッ</label>
+            </div>
+            
+            <div class="mt-3 pb-3">
+               <label class="form-label"><ruby>色<rt>いろ</rt></ruby></label>
+               <input type="color" class="form-control form-control-color w-100" id="colorPicker" value="#ea4335" title="Choose your color">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Canvas Area (Fills remaining space) -->
+      <div class="col-md-9 col-lg-10 mb-3 d-flex flex-column h-100">
+        <div class="card shadow-sm flex-grow-1">
+          <div class="card-body p-0 position-relative h-100" style="overflow: hidden; background-color: #f8f9fa;">
+             <!-- Canvas wrapper -->
+             <div id="canvas-container" class="graph-paper h-100 w-100">
+                <canvas id="c"></canvas>
+             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer mt-auto py-3 bg-light text-center border-top">
+    <div class="container">
+      <small class="text-muted">© 2026 Math Learning Studio <a href="https://note.com/cute_borage86" target="_blank" class="text-decoration-none text-muted">GIGA山</a></small>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+
+  <!-- JS.html Content Integrated -->
+  <script>
+    /**
+     * Client-side Logic (Serverless & Standalone Optimized)
+     * Features: Autosave, Undo/Redo, Image Export, Robust Vertex Edit, N-gon Builder
+     * Fixes: Integrated into single file, Ruler alignment, Icon fixes
+     */
+
+    // --- Global Variables ---
+    let canvas;
+    const GRID_SIZE = 50;
+    const STORAGE_KEY = 'math-studio-autosave';
+    
+    // Undo/Redo History
+    let history = [];
+    let historyStep = -1;
+    let isUndoRedo = false; 
+    const MAX_HISTORY = 15;
+
+    // Edit Mode State
+    let isEditMode = false;
+    let editProxyGroup = []; 
+    let originalObjHidden = null; 
+
+    // --- Initialization ---
+    document.addEventListener('DOMContentLoaded', () => {
+      initCanvas();
+      loadFromLocalStorage();
+
+      // UI Event Listeners
+      document.getElementById('colorPicker').addEventListener('input', updateObjectColor);
+      document.getElementById('btn-undo').addEventListener('click', undo);
+      document.getElementById('btn-redo').addEventListener('click', redo);
+      document.getElementById('btn-download').addEventListener('click', downloadImage);
+
+      // Keyboard Event Listener
+      document.addEventListener('keydown', (e) => {
+        if (Swal.isVisible()) return;
+        if (e.key === 'Delete' || e.key === 'Backspace') {
+          e.preventDefault();
+          deleteObject();
+        }
+      });
+
+      saveHistory(); 
+    });
+
+    // --- Fabric.js Logic ---
+
+    function initCanvas() {
+      const container = document.getElementById('canvas-container');
+      
+      canvas = new fabric.Canvas('c', {
+        width: container.clientWidth,
+        height: container.clientHeight,
+        selection: true,
+        preserveObjectStacking: true,
+        backgroundColor: 'transparent'
+      });
+
+      // Snapping Logic
+      canvas.on('object:moving', function(options) {
+        if (!document.getElementById('snapToggle').checked) return;
+        const target = options.target;
+        if (target.isTool || target.isControlPoint) return; 
+
+        target.set({
+          left: Math.round(target.left / GRID_SIZE) * GRID_SIZE,
+          top: Math.round(target.top / GRID_SIZE) * GRID_SIZE
+        });
+      });
+
+      // Rotation Snap
+      canvas.on('object:rotating', function(options) {
+        if (!document.getElementById('rotSnapToggle').checked) return;
+        const target = options.target;
+        if (target.isTool) return; // Tools rotate smoothly
+
+        const snapAngle = 15;
+        const snapped = Math.round(target.angle / snapAngle) * snapAngle;
+        target.rotate(snapped);
+      });
+
+      // Tool Layering
+      canvas.on('object:modified', function(e) {
+          if (e.target.isTool) {
+              e.target.bringToFront();
+          }
+          onStateChange(e);
+      });
+
+      // History & Selection Events
+      canvas.on('object:added', onStateChange);
+      canvas.on('object:removed', onStateChange);
+      canvas.on('selection:created', handleSelection);
+      canvas.on('selection:updated', handleSelection);
+      
+      window.addEventListener('resize', fitCanvasToContainer);
+    }
+
+    function fitCanvasToContainer() {
+        const container = document.getElementById('canvas-container');
+        canvas.setWidth(container.clientWidth);
+        canvas.setHeight(container.clientHeight);
+        canvas.renderAll();
+    }
+
+    // --- Selection Handling ---
+
+    function handleSelection(e) {
+        updateColorPicker(e);
+        const selected = e.selected[0];
+        
+        if (selected.isTool) {
+            selected.bringToFront();
+        }
+
+        if (isEditMode) {
+            if (!selected.isControlPoint && !selected.isProxyLine) {
+                exitEditMode();
+            }
+        }
+    }
+
+    // --- History System ---
+    function onStateChange(e) {
+      if (isUndoRedo) return;
+      if (e && e.target && (e.target.isControlPoint || e.target.isProxyLine)) return;
+      
+      saveHistory();
+      saveToLocalStorage();
+    }
+
+    function saveHistory() {
+      if (historyStep < history.length - 1) {
+        history = history.slice(0, historyStep + 1);
+      }
+      const json = JSON.stringify(canvas.toDatalessJSON(['isTool', 'id']));
+      history.push(json);
+      if (history.length > MAX_HISTORY) history.shift();
+      else historyStep++;
+      updateUndoRedoButtons();
+    }
+
+    function undo() {
+      if (historyStep > 0) {
+        if (isEditMode) exitEditMode();
+        isUndoRedo = true;
+        historyStep--;
+        canvas.loadFromJSON(history[historyStep], function() {
+          canvas.renderAll();
+          isUndoRedo = false;
+          updateUndoRedoButtons();
+          saveToLocalStorage();
+        });
+      }
+    }
+
+    function redo() {
+      if (historyStep < history.length - 1) {
+        if (isEditMode) exitEditMode();
+        isUndoRedo = true;
+        historyStep++;
+        canvas.loadFromJSON(history[historyStep], function() {
+          canvas.renderAll();
+          isUndoRedo = false;
+          updateUndoRedoButtons();
+          saveToLocalStorage();
+        });
+      }
+    }
+
+    function updateUndoRedoButtons() {
+      document.getElementById('btn-undo').disabled = (historyStep <= 0);
+      document.getElementById('btn-redo').disabled = (historyStep >= history.length - 1);
+    }
+
+    function saveToLocalStorage() {
+      const json = canvas.toJSON(['isTool', 'id']);
+      json.objects = json.objects.filter(obj => !obj.isTool && !obj.isControlPoint && !obj.isProxyLine); 
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(json));
+    }
+
+    function loadFromLocalStorage() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        isUndoRedo = true;
+        canvas.loadFromJSON(saved, function() {
+          canvas.renderAll();
+          isUndoRedo = false;
+          history = [saved];
+          historyStep = 0;
+          updateUndoRedoButtons();
+        });
+      } else {
+          saveHistory();
+      }
+    }
+
+    // --- Robust Vertex Editing System ---
+
+    function toggleEditMode() {
+      if (isEditMode) {
+          exitEditMode();
+          return;
+      }
+
+      const activeObj = canvas.getActiveObject();
+      if (!activeObj || activeObj.isTool) {
+          Swal.fire('図形を選んでください', '形を変えたい図形をクリックしてからボタンを押してね', 'info');
+          return;
+      }
+      
+      if (activeObj.type === 'rect' || activeObj.type === 'triangle' || activeObj.type === 'circle') {
+           Swal.fire({
+              title: '変換しますか？',
+              text: 'この図形を自由な形に変えられるように変換します。',
+              icon: 'question',
+              showCancelButton: true,
+              confirmButtonText: 'はい',
+              cancelButtonText: 'いいえ'
+          }).then((res) => {
+              if(res.isConfirmed) {
+                  const poly = convertToPolygon(activeObj);
+                  if(poly) enterEditMode(poly);
+              }
+          });
+          return;
+      }
+
+      if (activeObj.type !== 'polygon') {
+          Swal.fire('できません', 'この図形は形を変えられません', 'warning');
+          return;
+      }
+
+      enterEditMode(activeObj);
+    }
+
+    function convertToPolygon(obj) {
+        let points;
+        const w = obj.width * obj.scaleX;
+        const h = obj.height * obj.scaleY;
+        
+        if (obj.type === 'circle') {
+            points = [];
+            const r = w / 2;
+            for(let i=0; i<12; i++) {
+                const angle = (i / 12) * Math.PI * 2;
+                points.push({
+                    x: Math.cos(angle) * r,
+                    y: Math.sin(angle) * r
+                });
+            }
+        } else if (obj.type === 'rect') {
+            points = [
+                {x: -w/2, y: -h/2}, {x: w/2, y: -h/2},
+                {x: w/2, y: h/2}, {x: -w/2, y: h/2}
+            ];
+        } else if (obj.type === 'triangle') {
+            points = [
+                {x: 0, y: -h/2}, {x: -w/2, y: h/2}, {x: w/2, y: h/2}
+            ];
+        }
+
+        const poly = new fabric.Polygon(points, {
+            left: obj.left, top: obj.top, angle: obj.angle,
+            fill: obj.fill, stroke: obj.stroke, strokeWidth: obj.strokeWidth,
+            opacity: obj.opacity, objectCaching: false, id: obj.id || Date.now()
+        });
+
+        canvas.remove(obj);
+        canvas.add(poly);
+        canvas.renderAll();
+        return poly;
+    }
+
+    function enterEditMode(poly) {
+      isEditMode = true;
+      originalObjHidden = poly;
+      
+      poly.visible = false;
+      poly.evented = false;
+      canvas.discardActiveObject();
+
+      const btn = document.getElementById('btn-edit-mode');
+      if(btn) {
+          btn.classList.add('active', 'btn-warning');
+          btn.classList.remove('btn-outline-warning');
+          btn.innerHTML = '<i class="bi bi-check-lg me-2"></i><ruby>完了<rt>かんりょう</rt></ruby>';
+      }
+
+      const matrix = poly.calcTransformMatrix();
+      const absolutePoints = poly.points.map(p => {
+          return fabric.util.transformPoint({
+              x: p.x - poly.pathOffset.x,
+              y: p.y - poly.pathOffset.y
+          }, matrix);
+      });
+
+      editProxyGroup = [];
+      
+      absolutePoints.forEach((p, index) => {
+          const circle = new fabric.Circle({
+              left: p.x, top: p.y,
+              radius: 10, fill: '#ff0000', stroke: '#fff', strokeWidth: 2,
+              originX: 'center', originY: 'center',
+              hasControls: false, hasBorders: false,
+              isControlPoint: true,
+              pointIndex: index
+          });
+          canvas.add(circle);
+          editProxyGroup.push(circle);
+
+          circle.on('moving', function(opt) {
+              if (document.getElementById('snapToggle').checked) {
+                   this.set({
+                      left: Math.round(this.left / GRID_SIZE) * GRID_SIZE,
+                      top: Math.round(this.top / GRID_SIZE) * GRID_SIZE
+                  });
+              }
+              updateProxyLines();
+          });
+      });
+
+      updateProxyLines();
+      canvas.requestRenderAll();
+    }
+
+    function updateProxyLines() {
+        const oldLines = editProxyGroup.filter(o => o.isProxyLine);
+        oldLines.forEach(l => canvas.remove(l));
+        
+        const circles = editProxyGroup.filter(o => o.isControlPoint);
+        
+        for(let i=0; i<circles.length; i++) {
+            const c1 = circles[i];
+            const c2 = circles[(i+1) % circles.length];
+            
+            const line = new fabric.Line([c1.left, c1.top, c2.left, c2.top], {
+                stroke: '#1a73e8', strokeWidth: 3, strokeDashArray: [5, 5],
+                selectable: false, evented: false,
+                isProxyLine: true
+            });
+            canvas.add(line);
+            line.sendToBack(); 
+            editProxyGroup.push(line);
+        }
+    }
+
+    function exitEditMode() {
+      if (!isEditMode) return;
+      
+      const targetPoly = originalObjHidden;
+      const proxies = [...editProxyGroup];
+
+      isEditMode = false;
+      originalObjHidden = null;
+      editProxyGroup = [];
+      resetEditButton();
+
+      proxies.forEach(o => canvas.remove(o));
+
+      if (targetPoly) {
+          const circles = proxies.filter(o => o.isControlPoint);
+          circles.sort((a, b) => a.pointIndex - b.pointIndex);
+          const newPoints = circles.map(c => ({ x: c.left, y: c.top }));
+          
+          canvas.remove(targetPoly);
+
+          const newPoly = new fabric.Polygon(newPoints, {
+              fill: targetPoly.fill,
+              stroke: targetPoly.stroke,
+              strokeWidth: targetPoly.strokeWidth,
+              opacity: targetPoly.opacity,
+              objectCaching: false,
+              id: targetPoly.id
+          });
+          
+          canvas.add(newPoly);
+          canvas.setActiveObject(newPoly); 
+          saveHistory();
+      }
+      
+      canvas.requestRenderAll();
+    }
+    
+    function resetEditButton() {
+        const btn = document.getElementById('btn-edit-mode');
+        if(btn) {
+          btn.classList.remove('active', 'btn-warning');
+          btn.classList.add('btn-outline-warning');
+          btn.innerHTML = '<i class="bi bi-vector-pen me-2"></i><ruby>形<rt>かたち</rt></ruby>を<ruby>変<rt>か</rt></ruby>える';
+        }
+    }
+
+    // --- N-gon Builder ---
+    async function addPolygon() {
+        const { value: sides } = await Swal.fire({
+            title: '<ruby>多角形<rt>たかくけい</rt></ruby>を<ruby>作<rt>つく</rt></ruby>る',
+            input: 'range',
+            inputLabel: '頂点（ちょうてん）の数: 6',
+            inputAttributes: { min: 3, max: 12, step: 1 },
+            inputValue: 6,
+            didOpen: () => {
+                const input = Swal.getInput();
+                const label = Swal.getHtmlContainer().querySelector('label');
+                input.addEventListener('input', () => { label.textContent = `頂点（ちょうてん）の数: ${input.value}`; });
+            },
+            showCancelButton: true
+        });
+        if (sides) createNGon(parseInt(sides));
+    }
+
+    function createNGon(n) {
+        const radius = GRID_SIZE * 2;
+        const points = [];
+        for (let i = 0; i < n; i++) {
+            const angle = (i * 2 * Math.PI / n) - Math.PI / 2;
+            points.push({ x: Math.cos(angle) * radius, y: Math.sin(angle) * radius });
+        }
+        const poly = new fabric.Polygon(points, {
+            left: 400, top: 100, fill: '#34a853', stroke: '#000', strokeWidth: 2, opacity: 0.9, id: Date.now()
+        });
+        canvas.add(poly); canvas.setActiveObject(poly); saveHistory();
+    }
+
+    // --- Size Builder ---
+    async function openSizeBuilder() {
+        const { value: shapeType } = await Swal.fire({
+            title: '<ruby>形<rt>かたち</rt></ruby>を<ruby>選<rt>えら</rt></ruby>ぶ',
+            input: 'radio',
+            inputOptions: { 'rect': '四角形', 'tri': '直角三角形' },
+            inputValue: 'rect', confirmButtonText: '次へ', showCancelButton: true
+        });
+        if (!shapeType) return;
+        
+        const { value: sizes } = await Swal.fire({
+            title: '<ruby>大<rt>おお</rt></ruby>きさを<ruby>決<rt>き</rt></ruby>める',
+            html: `
+              <div class="mb-3"><label><ruby>横<rt>よこ</rt></ruby></label><input id="swal-w" type="number" class="form-control" value="4" min="1" max="20"></div>
+              <div class="mb-3"><label><ruby>縦<rt>たて</rt></ruby></label><input id="swal-h" type="number" class="form-control" value="3" min="1" max="20"></div>
+            `,
+            preConfirm: () => [document.getElementById('swal-w').value, document.getElementById('swal-h').value]
+        });
+        if (sizes) shapeType === 'rect' ? addRectBySize(sizes[0], sizes[1]) : addTriangleBySize(sizes[0], sizes[1]);
+    }
+
+    function addRectBySize(w, h) {
+        const width = w * GRID_SIZE, height = h * GRID_SIZE;
+        const rect = new fabric.Rect({ left: 100, top: 100, fill: '#1a73e8', width: width, height: height, stroke: '#000', strokeWidth: 2, opacity: 0.9, id: Date.now() });
+        canvas.add(rect); canvas.setActiveObject(rect); saveHistory();
+    }
+    function addTriangleBySize(base, height) {
+        const w = base * GRID_SIZE, h = height * GRID_SIZE;
+        const poly = new fabric.Polygon([{x: 0, y: 0}, {x: w, y: 0}, {x: 0, y: -h}], { left: 100, top: 100+h, fill: '#ea4335', stroke: '#000', strokeWidth: 2, opacity: 0.9, id: Date.now() });
+        canvas.add(poly); canvas.setActiveObject(poly); saveHistory();
+    }
+
+    // --- Basic Shapes ---
+    function addRect() { canvas.add(new fabric.Rect({left:100, top:100, fill:'#1a73e8', width:GRID_SIZE*2, height:GRID_SIZE*2, stroke:'#000', strokeWidth:2, opacity:0.9, id:Date.now()})); }
+    function addTriangle() { canvas.add(new fabric.Triangle({left:200, top:100, fill:'#ea4335', width:GRID_SIZE*2, height:GRID_SIZE*2, stroke:'#000', strokeWidth:2, opacity:0.9, id:Date.now()})); }
+    function addCircle() { canvas.add(new fabric.Circle({left:300, top:100, fill:'#fbbc04', radius:GRID_SIZE, stroke:'#000', strokeWidth:2, opacity:0.9, id:Date.now()})); }
+    
+    // --- Enhanced Tools (Fixed Alignment) ---
+
+    function addRuler() {
+        // 30cm Ruler (1 grid = 1cm approx)
+        const rulerLength = 300; 
+        const rulerHeight = 60;
+        
+        // FIX: Center origin for background to match group logic
+        const bg = new fabric.Rect({
+            width: rulerLength, height: rulerHeight,
+            fill: 'rgba(255, 255, 255, 0.6)',
+            stroke: '#888', strokeWidth: 1,
+            rx: 5, ry: 5,
+            originX: 'center', originY: 'center',
+            left: 0, top: 0
+        });
+
+        const ticks = [];
+        // Ticks calculation based on centered origin (0,0)
+        for(let i=0; i<=rulerLength; i+=10) {
+            const isMajor = (i % 50 === 0);
+            const h = isMajor ? 20 : 10;
+            const strokeW = isMajor ? 1.5 : 1;
+            
+            // x is relative to center (0,0) of the ruler
+            const x = i - rulerLength / 2; 
+            // bottom edge is at y = rulerHeight / 2 (since origin is center)
+            const bottomY = rulerHeight / 2; 
+
+            ticks.push(new fabric.Line([x, bottomY - h, x, bottomY], {
+                stroke: '#333', strokeWidth: strokeW,
+                originX: 'center', originY: 'center'
+            }));
+
+            if (isMajor) {
+                ticks.push(new fabric.Text((i/50).toString(), {
+                    left: x, top: bottomY - 25, // Adjusted text position
+                    fontSize: 14, fontFamily: 'Zen Maru Gothic',
+                    originX: 'center', originY: 'center',
+                    fill: '#333'
+                }));
+            }
+        }
+
+        const rulerGroup = new fabric.Group([bg, ...ticks], {
+            left: 100, top: 300,
+            isTool: true,
+            lockScalingY: true,
+            transparentCorners: false,
+            cornerColor: 'rgba(0,0,255,0.5)'
+        });
+        
+        canvas.add(rulerGroup);
+        canvas.setActiveObject(rulerGroup);
+    }
+
+    function addProtractor() {
+        const radius = 150;
+        
+        // Semicircle: origin at center-bottom (baseline center)
+        const semiCircle = new fabric.Path(`M ${-radius} 0 A ${radius} ${radius} 0 0 1 ${radius} 0`, {
+            fill: 'rgba(200, 230, 255, 0.5)',
+            stroke: '#888', strokeWidth: 1,
+            originX: 'center', originY: 'bottom', // Pivot at baseline
+            left: 0, top: 0
+        });
+
+        const marks = [];
+        const bottomLine = new fabric.Line([-radius, 0, radius, 0], { 
+            stroke: '#888', strokeWidth: 1,
+            originX: 'center', originY: 'center',
+            left: 0, top: 0
+        });
+        
+        const centerMark = new fabric.Circle({ 
+            radius: 3, fill: 'red', 
+            originX: 'center', originY: 'center',
+            left: 0, top: 0
+        });
+
+        // Degrees
+        for(let i=0; i<=180; i+=10) {
+            const angleRad = (i * Math.PI) / 180;
+            const x1 = Math.cos(Math.PI - angleRad) * (radius - 5);
+            const y1 = -Math.sin(Math.PI - angleRad) * (radius - 5);
+            const x2 = Math.cos(Math.PI - angleRad) * (radius - 15);
+            const y2 = -Math.sin(Math.PI - angleRad) * (radius - 15);
+            
+            const isMajor = (i % 30 === 0);
+            
+            marks.push(new fabric.Line([x1, y1, x2, y2], {
+                stroke: '#333', strokeWidth: isMajor ? 2 : 1,
+                originX: 'center', originY: 'center'
+            }));
+            
+            if(isMajor) {
+               const tx = Math.cos(Math.PI - angleRad) * (radius - 30);
+               const ty = -Math.sin(Math.PI - angleRad) * (radius - 30);
+               marks.push(new fabric.Text(i.toString(), {
+                   left: tx, top: ty,
+                   fontSize: 12, fontFamily: 'Zen Maru Gothic',
+                   originX: 'center', originY: 'center', fill: '#333'
+               }));
+            }
+        }
+        
+        // Use originX/Y center for group, but position elements relative to it
+        const group = new fabric.Group([semiCircle, bottomLine, centerMark, ...marks], {
+            left: 300, top: 300,
+            isTool: true,
+            lockScalingX: true, lockScalingY: true
+        });
+        
+        canvas.add(group);
+        canvas.setActiveObject(group);
+    }
+
+    // --- Operations ---
+    function updateObjectColor(e) { if(canvas.getActiveObject()) { canvas.getActiveObject().set('fill', e.target.value); canvas.requestRenderAll(); canvas.fire('object:modified'); } }
+    function updateColorPicker(e) { if(e.selected[0] && e.selected[0].fill) document.getElementById('colorPicker').value = e.selected[0].fill; }
+    
+    function deleteObject() { 
+        if (isEditMode) {
+            editProxyGroup.forEach(o => canvas.remove(o));
+            editProxyGroup = [];
+            if (originalObjHidden) { canvas.remove(originalObjHidden); originalObjHidden = null; }
+            isEditMode = false;
+            resetEditButton();
+            canvas.requestRenderAll();
+            saveHistory();
+            return;
+        }
+        const activeObjects = canvas.getActiveObjects();
+        if (activeObjects.length) {
+            canvas.discardActiveObject();
+            activeObjects.forEach(o => canvas.remove(o));
+            canvas.requestRenderAll();
+        }
+    }
+
+    function clearCanvas() { Swal.fire({title:'全消し？', showCancelButton:true}).then(r=>{ if(r.isConfirmed) { canvas.clear(); canvas.fire('object:modified'); } }); }
+    function copyObject() { const o=canvas.getActiveObject(); if(!o || o.isControlPoint) return; o.clone(c=>{ canvas.discardActiveObject(); c.set({left:o.left+20, top:o.top+20, evented:true, id:Date.now()}); if(c.type==='activeSelection') { c.canvas=canvas; c.forEachObject(x=>canvas.add(x)); c.setCoords(); } else canvas.add(c); canvas.setActiveObject(c); canvas.requestRenderAll(); canvas.fire('object:added'); }); }
+    function downloadImage() { const bg=canvas.backgroundColor; canvas.setBackgroundColor('#fff', ()=>{ const url=canvas.toDataURL({format:'png', multiplier:2}); canvas.setBackgroundColor(bg, ()=>{ const a=document.createElement('a'); a.download='math-'+Date.now()+'.png'; a.href=url; document.body.appendChild(a); a.click(); document.body.removeChild(a); }); }); }
+  </script>
+</body>
+</html>
